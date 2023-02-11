@@ -1,0 +1,18 @@
+{
+  "name": "lerna-starter-kit",
+  "version": "0.0.1",
+  "description": "This is a starter kit for a Lerna monorepo app",
+  "private": true,
+  "workspaces": ["client","server"],
+  "scripts": {
+    "start": "lerna run start",
+    "dev": "concurrently --kill-others-on-fail -n \"server,client\" \"cd server && npm run dev\" \"cd client && npm run start\"",
+    "dev:client": "cd client && npm run start",
+    "dev:server": "cd server && npm run dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "concurrently": "^6.4.0",
+    "lerna": "^6.4.1"
+  }
+}

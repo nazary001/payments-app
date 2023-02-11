@@ -1,0 +1,61 @@
+.calculator-and-payments {
+    margin-top: 3rem;
+    margin-bottom: 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.calc-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.calc-title{
+    font-size: 2rem;
+    margin: 0;
+}
+
+.calc-data-container {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.calc-data-container div{
+    width: fit-content;
+}
+
+.convert-select {
+    white-space: nowrap;
+    width: 4rem !important;
+}
+
+.calc-text-input {
+    width: 6rem !important;
+    text-align: center;
+}
+
+.calc-res {
+    font-size: 1.1rem;
+}
+
+.payments-section{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.payments-title {
+    font-size: 1.5rem;
+    margin: 3rem 0 0 0;
+}
+

@@ -1,0 +1,51 @@
+h2 {
+  font-size: 1.3rem;
+}
+
+.window-title {
+  margin-bottom: 4rem;
+}
+
+.notEnoughMoney-window {
+  color: black;
+  margin: 0;
+  display: flex;
+  gap: 1.5rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+}
+.notEnoughMoney-window > h2 {
+  margin: 0;
+}
+
+.payment-window {
+  color: black;
+  padding: 5rem;
+}
+
+.currencies-list {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.amount-line {
+  display: flex;
+  gap: 3rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.description-box {
+  display: flex;
+  gap: 1.1rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 2rem;
+}

@@ -1,0 +1,23 @@
+/* Hero */
+.balance-container {
+    background-color: rgba(217, 203, 255, 0.357);
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+  }
+  .balance-title {
+    font-size: 1.5rem;
+  }
+  .balance-value {
+    font-size: 4rem;
+  }
+  .balance-convert {
+    font-size: 1.1rem;
+  }
+  .convert-select {
+    white-space: nowrap;
+    width: 4rem !important;
+  }
