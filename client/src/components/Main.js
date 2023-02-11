@@ -6,7 +6,7 @@ import "./Main.css";
 import BalanceContext from "../data/BalanceContext";
 import MakePaymentWindow from "./MakePaymentWindow";
 
-function Main({ socket }) {
+function Main() {
   const balance = useContext(BalanceContext);
   const [foreignCurrency, setForeignCurrency] = useState("USD");
   const [foreignAmount, setForeignAmount] = useState(0);
@@ -17,49 +17,10 @@ function Main({ socket }) {
   const payment = useRef({});
   const [payments, setPayments] = useState([]);
 
-  // TODO:
-  // get rid of Simple Store, by completing and merging https://trello.com/c/eE1POkeF/22
-  // then use State for keeping payments data (response from back-end, /payments end-point):
-  // const [payments, setPayments] = useState(store.getState().payments);
-
-  useEffect(() => {
-    const processMessage = (data) => {
-      // TODO: when above change (with using payments api) is done
-      // and Simple Store is removed implement the below approach:
-
-      // check the `data.action`
-      // if data.action === update then:
-      // setPayments((prevPayments) => {
-      //   const copyPayments = { ...prevPayments };
-      //   const updatedPayments = data.payments;
-      //   // TODO: update the payments
-      //   // - in copyPayments
-      //   // - with updatedPayments
-      //   // and return copyPayments
-      //   return copyPayments;
-      // });
-
-      // if data.action === deleted then:
-      // do something different....
-      fetch(`http://localhost:4000/payments`)
-        .then((res) => res.json())
-        .then((data) => {
-          setPayments(data);
-        });
-    };
-
-    if (socket) {
-      socket.on("payments", processMessage);
-      return () => {
-        socket.off("payments", processMessage);
-      };
-    }
-  }, [socket]);
-
   useEffect(() => {
     fetch(`http://localhost:4000/payments`)
-      .then((res) => res.json())
-      .then((data) => {
+      .then(res => res.json())
+      .then(data => {
         setPayments(data);
       });
   }, []);
@@ -84,39 +45,36 @@ function Main({ socket }) {
   };
 
   const addPayment = (payment) => {
+    
     fetch("http://localhost:4000/payments", {
       method: "POST",
       headers: new Headers({
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       }),
-      body: JSON.stringify(payment),
+      body: JSON.stringify(payment)
     })
-      .then((res) => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          throw Error(
-            "oooops, we couldn't  post a new payment to the back-end server!"
-          );
-        }
-      })
-      .then((newPayment) => {
-        setShowPaymentWindow(false);
-        // todo:
-        /**
-         * `data` is our `new Payments`
-         * we need to add it to the `payments` state now.
-         */
-        setPayments([...payments, newPayment]);
-      });
+    .then(res => {
+      if(res.ok) {
+        return res.json();
+      } else {
+        throw Error("oooops, we couldn't  post a new payment to the back-end server!");
+      }
+    })
+    .then(newPayment => {
+      setShowPaymentWindow(false);
+      // todo: 
+      /**
+       * `data` is our `new Payments`
+       * we need to add it to the `payments` state now.
+       */
+      setPayments([...payments, newPayment]);
+
+    });
   };
 
   const handleChangeForeignAmount = (event) => {
     if (Number(event.target.value) || event.target.value === "") {
       setForeignAmount(event.target.value);
-      // if foreignAmount updated manually,
-      // then homeAmmount needs to reset and recalculated
-      setHomeAmount("");
     } else {
       event.target.value = foreignAmount;
     }
@@ -156,10 +114,12 @@ function Main({ socket }) {
           onClick={() => setShowPaymentWindow(true)}
         />
       </section>
-      <section>
-        <PaymentsView payments={payments} />
-      </section>
-
+      <PaymentsView
+        setShowPaymentWindow={setShowPaymentWindow}
+        showPaymentWindow={showPaymentWindow}
+        payment={payment.current}
+        payments={payments}
+      />
       {showPaymentWindow && (
         <MakePaymentWindow
           setShowPaymentWindow={setShowPaymentWindow}
