@@ -8,13 +8,9 @@ import { useEffect, useState} from "react";
 import CurrenciesContext from "./data/CurrenciesContext";
 import BalanceContext from "./data/BalanceContext";
 
-import io from "socket.io-client";
-
 function App() {
   const [currencies, setCurrencies] = useState({});
   const [balance, setBalance] = useState({});
-
-  const [socket, setSocket] = useState(null);
 
   useEffect(() => {
     fetch("https://api.exchangerate.host/symbols")
@@ -28,27 +24,6 @@ function App() {
     .then(data => {setBalance(data)})
   }, []);
 
-  useEffect(() => {
-    const newSocket = io("http://localhost:5000");
-    
-    // TODO:
-    // consider parametrizing this link, either the way below or some another way:
-    // const newSocket = io(`http://${window.location.hostname}:5000`);
-
-    setSocket(newSocket);
-    return () => {
-      newSocket.close()
-    };
-  }, [setSocket]);
-
-  useEffect(() => {
-    if(socket) {
-      socket.on("connect", () => {
-        console.log("connected to Socket with id: " + socket.id);
-      });
-    }
-  }, [socket]);
-
   return (
     <CurrenciesContext.Provider value={currencies}>
       <BalanceContext.Provider value={balance}>
@@ -57,7 +32,7 @@ function App() {
           { (Object.keys(balance).length > 0 && Object.keys(currencies).length > 0) &&
             <>
               <Hero />
-              <Main socket={socket}/>
+              <Main />
             </>
           }
           <Footer />
@@ -68,4 +43,3 @@ function App() {
 }
 
 export default App;
-
