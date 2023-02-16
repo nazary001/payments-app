@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Tab, Tabs } from "grommet";
-import PaymentsTable from "./PaymentsTable";
+import PaymentsTable from "./PaymentsTable.js";
 
 function PaymentsView({ payments }) {
   const [activeTabIndex, setActiveTabIndex] = useState(0);

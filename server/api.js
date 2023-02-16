@@ -1,49 +1,47 @@
-import express from "express";
-import cors from "cors";
-import { v4 as uuidv4 } from "uuid";
-import { createServer } from "http";
-import { Server } from "socket.io";
-import paymentsOut from "./data/payments-out.js";
-import paymentsIn from "./data/payments-in.js";
-import { connectDb, disconnectDb } from "./db.js";
-import db from "./db.js";
 
-import paymentValidator from "./PaymentValidator.js";
+import { Router } from "express";
+import logger from "./utils/logger";
+import db from "./db";
+
+import { server } from "./app";
+import { Server as SocketServer } from "socket.io";
+import { v4 as uuidv4 } from "uuid";
+
+import paymentsOut from "./data/payments-out.js";
+import paymentValidator from "./utils/PaymentValidator.js";
 import { calculateTotalhomeAmount } from "./helper/Balance.js";
 
-const SERVER_PORT = process.env.PORT || 4000;
-const SOCKET_PORT = process.env.SOCKET_PORT || 5000;
+const router = Router();
 
-const server = express();
-server.use(express.json());
-server.use(cors());
-
-const socketServer = createServer(server);
-const ioServer = new Server(socketServer, {
+const io = new SocketServer(server, {
   cors: { origin: "*" },
 });
 
-ioServer.on("connection", (socket) => {
-  console.log(`a user connected with id: ${socket.id}`);
+router.get("/", (_, res) => {
+	res.json({ message: "Hello from Payments App!" });
+});
+
+io.on("connection", (socket) => {
+  logger.info(`user with id ${socket.id} has just connected to the socket-server`);
 
   socket.on("disconnect", () => {
-    console.log(`user with id ${socket.id} has just disconnected`);
+    logger.info(`user with id ${socket.id} has just disconnected from the socket-server`);
   });
 });
 
 function validatePaymentDataMiddleWare(req, res, next) {
-    const payment = {...req.body};
-    const errors = paymentValidator.validate(payment);
+  const payment = {...req.body};
+  const errors = paymentValidator.validate(payment);
 
-    if(errors.length > 0) {
-        res.status(400).send({'errors': errors});
-        next("Payment validation has failed");
-    }
+  if(errors.length > 0) {
+      res.status(400).send({'errors': errors});
+      next("Payment validation has failed");
+  }
 
-    next();
+  next();
 };
 
-server.get('/health', (req, res) => {
+router.get("/version", (req, res) => {
   db.query("select version()")
     .then((result) => {
       res.status(200).send(result.rows[0]);
@@ -53,7 +51,7 @@ server.get('/health', (req, res) => {
     });
 });
 
-server.get('/balance', (req, res) => {
+router.get('/balance', (req, res) => {
   db.query("select * from payments")
     .then((result) => {
       const balance = {
@@ -68,7 +66,7 @@ server.get('/balance', (req, res) => {
     });
 });
 
-server.get('/payments', (req, res) => {
+router.get('/payments', (req, res) => {
   db.query("select * from payments")
     .then((result) => {
       res.status(200).send(result.rows);
@@ -78,7 +76,7 @@ server.get('/payments', (req, res) => {
     });
 });
 
-server.post("/payments", validatePaymentDataMiddleWare, (req, res) => {
+router.post("/payments", validatePaymentDataMiddleWare, (req, res) => {
   const payment = { ...req.body };
   Object.assign(payment, {
     id: uuidv4(),
@@ -93,7 +91,7 @@ server.post("/payments", validatePaymentDataMiddleWare, (req, res) => {
     payment: payment,
   };
 
-  ioServer.sockets.emit("payments", data);
+  io.sockets.emit("payments", data);
 
   setTimeout(() => {
     payment.status = "Completed";
@@ -109,7 +107,7 @@ server.post("/payments", validatePaymentDataMiddleWare, (req, res) => {
 });
 
 
-server.put("/payments/:id", (req, res) => {
+router.put("/payments/:id", (req, res) => {
   const payment = paymentsOut.find((payment) => payment.id === req.params.id);
   if (!payment) {
     res.status(404).send("Could not find payment with this ID");
@@ -129,10 +127,10 @@ server.put("/payments/:id", (req, res) => {
     payment: payment,
   };
 
-  ioServer.sockets.emit("payments", data);
+  io.sockets.emit("payments", data);
 });
 
-server.put('/payments/cancel/:id', (req, res) => {
+router.put('/payments/cancel/:id', (req, res) => {
   const payment = paymentsOut.find( payment => payment.id === req.params.id);
   if(!payment){
       res.status(404).send('Could not find payment with this ID');
@@ -152,10 +150,10 @@ server.put('/payments/cancel/:id', (req, res) => {
     payment: payment,
   };
 
-  ioServer.sockets.emit("payments", data);
+  io.sockets.emit("payments", data);
 });
 
-server.delete("/payments/:id", (req, res) => {
+router.delete("/payments/:id", (req, res) => {
   const paymentIdx = paymentsOut.findIndex(
     (payment) => payment.id === req.params.id
   );
@@ -168,15 +166,7 @@ server.delete("/payments/:id", (req, res) => {
     payment: payment,
   };
 
-  ioServer.sockets.emit("payments", data);
+  io.sockets.emit("payments", data);
 });
 
-process.on("SIGTERM", () => server.close(() => disconnectDb()));
-
-socketServer.listen(SOCKET_PORT, "0.0.0.0", () => {
-  console.log(`Socket server is running on port ${socketServer.address().port}`);
-});
-
-connectDb().then(() => server.listen(SERVER_PORT, "0.0.0.0", function () {
-  console.log(`Backend server is running on port ${this.address().port}`);
-}));
+export default router;

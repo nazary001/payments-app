@@ -1,12 +1,14 @@
-import pg from "pg";
-const { Pool } = pg;
+import { Pool } from "pg";
 
-const dbUrl = process.env.DATABASE_URL || "postgres://localhost:5432/payments";
+import config from "./utils/config";
+import logger from "./utils/logger";
 
 const pool = new Pool({
-	connectionString: dbUrl,
+	connectionString: config.dbUrl,
 	connectionTimeoutMillis: 5000,
-	ssl: /localhost|192.168./ig.test(dbUrl) ? false : { rejectUnauthorized: false },
+	ssl: config.dbUrl.includes("localhost")
+		? false
+		: { rejectUnauthorized: false },
 });
 
 /**
@@ -28,22 +30,28 @@ const pool = new Pool({
  * host    all             all             ::1/128                 trust
  */
 
+
 export const connectDb = async () => {
 	let client;
 	try {
 		client = await pool.connect();
-	} catch(err) {
-		console.error(err);
+	} catch (err) {
+		logger.error("%O", err);
 		process.exit(1);
 	}
-	console.log("Postgres connected to", client.database);
+	logger.info("Postgres connected to %s", client.database);
 	client.release();
 };
 
-export const disconnectDb = () => pool.close();
+export const disconnectDb = () => pool.end();
 
-export default { 
-	query: pool.query.bind(pool), 
-	connect: connectDb, 
-	disconnect: disconnectDb 
+/**
+ * Access this with `import db from "path/to/db";` then use it with
+ * `await db.query("<SQL>", [...<variables>])`.
+ */
+export default {
+	query: (...args) => {
+		logger.debug("Postgres querying %O", args);
+		return pool.query.apply(pool, args);
+	},
 };

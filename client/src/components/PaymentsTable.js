@@ -8,7 +8,7 @@ import {
   Button,
 } from "grommet";
 
-import BalanceContext from "../data/BalanceContext";
+import BalanceContext from "../data/BalanceContext.js";
 
 function PaymentsTable(props) {
   const balance = useContext(BalanceContext);
@@ -34,7 +34,7 @@ function PaymentsTable(props) {
   };
 
   const handleCancelPayment = ({id}) => {
-    fetch(`http://localhost:4000/payments/cancel/${id}`, {method: "PUT"})
+    fetch(`/api/payments/cancel/${id}`, {method: "PUT"})
       .then(res => {
         if(res.ok) {
           // payment status was changed to `Cancelled`:

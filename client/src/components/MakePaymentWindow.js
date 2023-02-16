@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect, useCallback } from "react";
 import { Layer, Button, TextInput, Text } from "grommet";
 import "./MakePaymentWindow.css";
-import BalanceContext from "../data/BalanceContext";
+import BalanceContext from "../data/BalanceContext.js";
 import noMoney from "../assets/noMoney.gif";
 
 export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails, payments, addPayment }) {

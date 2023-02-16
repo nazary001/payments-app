@@ -1,10 +1,10 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { Select, TextInput, Button } from "grommet";
-import CurrenciesContext from "../data/CurrenciesContext";
-import PaymentsView from "./PaymentsView";
+import CurrenciesContext from "../data/CurrenciesContext.js";
+import PaymentsView from "./PaymentsView.js";
 import "./Main.css";
-import BalanceContext from "../data/BalanceContext";
-import MakePaymentWindow from "./MakePaymentWindow";
+import BalanceContext from "../data/BalanceContext.js";
+import MakePaymentWindow from "./MakePaymentWindow.js";
 
 function Main() {
   const balance = useContext(BalanceContext);
@@ -18,7 +18,7 @@ function Main() {
   const [payments, setPayments] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/payments`)
+    fetch(`/api/payments`)
       .then(res => res.json())
       .then(data => {
         setPayments(data);
@@ -46,7 +46,7 @@ function Main() {
 
   const addPayment = (payment) => {
     
-    fetch("http://localhost:4000/payments", {
+    fetch("/api/payments", {
       method: "POST",
       headers: new Headers({
         "Content-Type": "application/json"

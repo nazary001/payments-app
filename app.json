@@ -1,0 +1,5 @@
+{
+	"name": "Payments App",
+	"description": "Ukrainian-Bug-Hunters/payments-app",
+	"stack": "heroku-22"
+}

@@ -1,5 +1,5 @@
 import React from "react";
-import "../components/Footer.css";
+import "./Footer.css";
 import { Button, Form, FormField, TextInput, Box } from "grommet";
 
 const Footer = () => {

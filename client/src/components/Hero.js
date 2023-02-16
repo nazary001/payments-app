@@ -1,7 +1,7 @@
 import { React, useState, useEffect, useContext } from "react";
 import { Select, Text } from "grommet";
-import CurrenciesContext from "../data/CurrenciesContext";
-import BalanceContext from "../data/BalanceContext";
+import CurrenciesContext from "../data/CurrenciesContext.js";
+import BalanceContext from "../data/BalanceContext.js";
 import "./Hero.css";
 
 const Hero = () => {
@@ -13,7 +13,7 @@ const Hero = () => {
   const balance  = useContext(BalanceContext);
 
   useEffect(() => {
-    fetch(`http://localhost:4000/payments`)
+    fetch(`/api/payments`)
       .then(res => res.json())
       .then(data => {
         setPayments(data);

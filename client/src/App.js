@@ -1,12 +1,12 @@
 import React from "react";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import Main from "./components/Main";
-import Footer from "./components/Footer";
+import Header from "./components/Header.js";
+import Hero from "./components/Hero.js";
+import Main from "./components/Main.js";
+import Footer from "./components/Footer.js";
 import { Grommet } from "grommet";
 import { useEffect, useState} from "react";
-import CurrenciesContext from "./data/CurrenciesContext";
-import BalanceContext from "./data/BalanceContext";
+import CurrenciesContext from "./data/CurrenciesContext.js";
+import BalanceContext from "./data/BalanceContext.js";
 
 function App() {
   const [currencies, setCurrencies] = useState({});
@@ -19,7 +19,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch('http://localhost:4000/balance')
+    fetch('/api/balance')
     .then(response => response.json())
     .then(data => {setBalance(data)})
   }, []);
