@@ -6,8 +6,8 @@ const calculateTotalhomeAmount = (payments) => {
     const totalAmountHomeCurrency = payments.reduce((total, payment) => {
         return total + calculateHomeAmount(payment);
         }, 0);
-    
-    return Number((totalAmountHomeCurrency * 100 / 100).toFixed(2));
+
+    return Math.round(totalAmountHomeCurrency * 100) / 100;
 };
 
 export {calculateHomeAmount, calculateTotalhomeAmount};

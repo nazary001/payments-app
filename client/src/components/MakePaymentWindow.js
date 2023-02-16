@@ -1,41 +1,29 @@
-import React, { useState, useContext, useEffect, useCallback } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Layer, Button, TextInput, Text } from "grommet";
-import "./MakePaymentWindow.css";
-import BalanceContext from "../data/BalanceContext.js";
+import BalanceContext from "../data/BalanceContext";
 import noMoney from "../assets/noMoney.gif";
+import {getPendingAmount} from "../helpers/PyemtnsHelper";
+import "./MakePaymentWindow.css";
 
 export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails, payments, addPayment }) {
-  const date = paymentDetails?.date || new Date().toLocaleDateString("fr-CA");
+  const [showNotEnoughMoney, setShowNotEnoughMoney] = useState(false);
   const balance = useContext(BalanceContext);
+
+  const date = paymentDetails?.date || new Date().toLocaleDateString("fr-CA");
+  const foreignCurrency = paymentDetails?.foreignCurrency || "USD";
+  const [foreignAmount, setForeignAmount] = useState(paymentDetails?.foreignAmount || 0);
   const [homeAmount, setHomeAmount] = useState(paymentDetails?.homeAmount || 0);
   const homeCurrency = paymentDetails?.homeCurrency || balance.currency;
-  const foreignCurrency = paymentDetails?.foreignCurrency || "USD";
-  const [foreignAmount, setForeignAmount] = useState(
-    paymentDetails?.foreignAmount || 0
-  );
-  const exchangeRate = paymentDetails?.exchangeRate || 0;
   const [description, setDescription] = useState("");
-  
-  const [amountAvailable, setAmountAvailable] = useState("");
-  
-  const [showNotEnoughMoney, setShowNotEnoughMoney] = useState(false);
-  
-  const getPendingAmont = useCallback(() => {
-    const pendingPayments = payments.filter(({ status }) => status === "Pending");
 
-    const totalPendingAmount = pendingPayments.reduce((total, thisPayment) => {
-      return (total += thisPayment.amount * thisPayment.exchangeRate);
-    }, 0);
+  const [amountAvailable, setAmountAvailable] = useState(0);
 
-    return totalPendingAmount;
-  }, [payments]);
-
-  const pendingAmount = getPendingAmont();
+  const exchangeRate = paymentDetails?.exchangeRate || 0;
 
   useEffect(() => {
-    const pendingAmount = getPendingAmont();
-    setAmountAvailable(balance.amount - pendingAmount);
-  }, [homeAmount, balance, getPendingAmont]);
+    const pendingAmount = getPendingAmount(payments);
+    setAmountAvailable(() => balance.amount - pendingAmount);
+  }, [homeAmount, balance, getPendingAmount]);
 
   const handleAmountUpdate = (event) => {
     if (event.target.id === "foreign-amount") {
@@ -43,7 +31,7 @@ export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails
         // update foreignAmount
         setForeignAmount(Number(event.target.value));
         // recalculate homeAmount
-        setHomeAmount(Number(event.target.value) * exchangeRate);
+        setHomeAmount(Math.round(Number(event.target.value) * exchangeRate * 100) / 100);
       } else {
         event.target.value = foreignAmount;
       }
@@ -54,7 +42,7 @@ export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails
         // update homeAmount
         setHomeAmount(Number(event.target.value));
         // recalculate foreignAmount
-        setForeignAmount(Number(event.target.value) / exchangeRate);
+        setForeignAmount(Math.round(Number(event.target.value) / exchangeRate * 100) / 100);
       } else {
         event.target.value = homeAmount;
       }
@@ -68,19 +56,20 @@ export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails
 
     return false;
   };
-  
+
   const handleAddPayment = (payment) => {
-    if (pendingAmount + homeAmount > balance.amount) {
+    if (payment.amount * exchangeRate > amountAvailable) {
       setShowNotEnoughMoney(true);
       return;
     }
     addPayment(payment);
+    setShowPaymentWindow(false);
   };
 
   return (
     <>
-      <Layer 
-        onEsc={() => setShowPaymentWindow(false)} 
+      <Layer
+        onEsc={() => setShowPaymentWindow(false)}
         onClickOutside={() => setShowPaymentWindow(false)}
       >
         {!!showNotEnoughMoney ? (
@@ -88,7 +77,7 @@ export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails
             <img src={noMoney} alt="no money gif" />
             <h2>You have not enough money!</h2>
             <h2>
-              Available balance is {balance.amount - pendingAmount}{" "}
+              Available balance is {amountAvailable}{" "}
               {homeCurrency}
             </h2>
             <Button
@@ -103,12 +92,13 @@ export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails
             <h1 className="window-title">Enter payment details</h1>
             <div className="input-fields">
               <h2>Date: {date}</h2>
+
               <div className="amount-line">
                 <h2>Amount ({foreignCurrency}):</h2>
                 <TextInput
                   id="foreign-amount"
                   placeholder="type here"
-                  value={foreignAmount}
+                  value={`${foreignAmount}`}
                   onChange={handleAmountUpdate}
                 />
               </div>
@@ -118,7 +108,7 @@ export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails
                 <TextInput
                   id="home-amount"
                   placeholder="type here"
-                  value={homeAmount}
+                  value={`${homeAmount}`}
                   onChange={handleAmountUpdate}
                 />
               </div>
@@ -126,6 +116,7 @@ export default function MakePaymentWindow({ setShowPaymentWindow, paymentDetails
                 Available amount: {amountAvailable}
               </Text>
               <h2>ExchangeRate: {exchangeRate}</h2>
+
               <div className="description-box">
                 <h2>Description:</h2>
                 <TextInput

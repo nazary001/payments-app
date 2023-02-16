@@ -1,16 +1,17 @@
-import { React, useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Select, Text } from "grommet";
-import CurrenciesContext from "../data/CurrenciesContext.js";
-import BalanceContext from "../data/BalanceContext.js";
+import CurrenciesContext from "../data/CurrenciesContext";
+import BalanceContext from "../data/BalanceContext";
+import {getAvailableAmount} from "../helpers/PyemtnsHelper";
 import "./Hero.css";
 
 const Hero = () => {
+  const currencies = useContext(CurrenciesContext);
+  const balance  = useContext(BalanceContext);
+
   const [foreignCurrency, setForeignCurrency] = useState("USD");
   const [foreignAmount, setForeignAmount] = useState(0);
   const [payments, setPayments] = useState([]);
-  
-  const currencies = useContext(CurrenciesContext);
-  const balance  = useContext(BalanceContext);
 
   useEffect(() => {
     fetch(`/api/payments`)
@@ -24,29 +25,19 @@ const Hero = () => {
     setForeignCurrency(currency);
   };
 
-
   const fetchData = async (url) => {
     try {
       const response = await fetch(url);
       const data = await response.json();
-      setForeignAmount(data.result.toFixed(2));
+      setForeignAmount(Number(data.result).toFixed(2));
     } catch (error) {
       console.log(error);
     }
   };
 
-  const getPendingAmont = () => {
-    const pendingPayments = payments.filter(({status}) => status ==="Pending");
-    
-    const totalPendingAmount = pendingPayments.reduce((total, thisPayment) => {
-      return total += thisPayment.amount * thisPayment.exchangeRate;
-    }, 0);
-
-    return totalPendingAmount;
-  };
-
   useEffect(() => {
-    const requestURL = `https://api.exchangerate.host/convert?from=${balance.currency}&to=${foreignCurrency}&amount=${balance.amount}`;
+    const exchangeApiLink = "https://api.exchangerate.host";
+    const requestURL = `${exchangeApiLink}/convert?from=${balance.currency}&to=${foreignCurrency}&amount=${balance.amount}`;
     fetchData(requestURL);
   }, [foreignCurrency, balance]);
 
@@ -57,7 +48,11 @@ const Hero = () => {
         {balance.currencySymbol} {balance.amount}
       </span>
       <span>
-      <Text size="small" color="red">Available amount: {`${balance.currencySymbol} ${balance.amount - getPendingAmont()}`}</Text>
+        {
+          !!payments.length &&
+          <Text size="small" color="red">Available amount: {`${balance.currencySymbol} ${getAvailableAmount(balance.amount, payments)}`}</Text>
+        }
+
       </span>
       <p className="balance-convert">
         Your balance is <span>{foreignAmount}</span> in{" "}

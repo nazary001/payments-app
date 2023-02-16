@@ -1,13 +1,12 @@
 import React from "react";
 import "./Header.css";
-import logo from "../assets/logo.png";
 
 const Header = () => {
     return (
         <header className="header-container">
             <div className="header-sections">
                 <nav className="nav-container">
-                    <img src={logo} alt="logo" className="app-logo" />
+                    <img crossOrigin="anonymous" src="https://cdn-icons-png.flaticon.com/512/3790/3790699.png" alt="logo" className="app-logo" />
                     <a href="/" className="header-title">Pay<span>Ments</span></a>
                 </nav>
                 <ul className="navigation-contact-list">

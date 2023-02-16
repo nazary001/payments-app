@@ -1,8 +1,11 @@
 # Payments App
-monorepo of payments application powered with lerna package manager
+monorepo of payments application powered with webpack config
 
 To start project locally:
 ```sh
-npx lerna clean -y
-npx lerna bootstrap --hoist
+npm cache clean -y
+npm install
+
+# for local development
+npm run dev
 ```

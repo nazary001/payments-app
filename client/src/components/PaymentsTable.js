@@ -8,7 +8,7 @@ import {
   Button,
 } from "grommet";
 
-import BalanceContext from "../data/BalanceContext.js";
+import BalanceContext from "../data/BalanceContext";
 
 function PaymentsTable(props) {
   const balance = useContext(BalanceContext);

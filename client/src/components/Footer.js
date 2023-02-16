@@ -9,7 +9,7 @@ const Footer = () => {
                 <div className="footer-data-container">
                     <address>
                         <div className="footer-title-container">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3790/3790699.png" alt="logo" className="footer-logo" />
+                            <img crossOrigin="anonymous" src="https://cdn-icons-png.flaticon.com/512/3790/3790699.png" alt="logo" className="footer-logo" />
                             <a href="./index.html" className="footer-title">Pay<span>Ments</span></a>
                         </div>
                             <ul className="address-list">
@@ -21,9 +21,9 @@ const Footer = () => {
                     <div className="social-container">
                         <p>Follow us</p>
                         <ul className="social-contact-list">
-                            <li><a href="https://www.instagram.com/"><img src="https://cdn-icons-png.flaticon.com/512/3670/3670125.png" alt="instagram" /></a></li>
-                            <li><a href="https://uk.linkedin.com/"><img src="https://cdn-icons-png.flaticon.com/512/3670/3670129.png" alt="linkedin" /></a></li>
-                            <li><a href="https://github.com/Ukrainian-Bug-Hunters"><img src="https://cdn-icons-png.flaticon.com/512/4494/4494756.png" alt="github" /></a></li>
+                            <li><a href="https://www.instagram.com/"><img crossOrigin="anonymous" src="https://cdn-icons-png.flaticon.com/512/3670/3670125.png" alt="instagram" /></a></li>
+                            <li><a href="https://uk.linkedin.com/"><img crossOrigin="anonymous"src="https://cdn-icons-png.flaticon.com/512/3670/3670129.png" alt="linkedin" /></a></li>
+                            <li><a href="https://github.com/Ukrainian-Bug-Hunters"><img crossOrigin="anonymous" src="https://cdn-icons-png.flaticon.com/512/4494/4494756.png" alt="github" /></a></li>
                         </ul>
                     </div>
                     <Form onSubmit={({ value }) => {}}>
